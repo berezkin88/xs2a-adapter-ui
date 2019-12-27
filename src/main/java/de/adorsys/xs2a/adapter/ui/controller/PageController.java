@@ -13,9 +13,6 @@ import java.util.logging.Logger;
 @Controller
 public class PageController {
 
-    // TODO replace with appropriate Logger
-    private final Logger logger = Logger.getLogger(PageController.class.getName());
-
     private static final String IBAN_SESSION_ATTRIBUTE = "iban";
     private static final String PSU_ID_SESSION_ATTRIBUTE = "psuId";
     private static final String DATE_FROM_SESSION_ATTRIBUTE = "dateFrom";
@@ -57,8 +54,8 @@ public class PageController {
 
     @PostMapping("/pin")
     public String pinInput(@RequestBody String pin) {
-        logger.info(pin);
 
+        //TODO add appropriate logic
         return "pin";
     }
 }
