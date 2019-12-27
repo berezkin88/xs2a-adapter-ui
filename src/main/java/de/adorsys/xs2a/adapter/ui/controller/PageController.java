@@ -45,12 +45,12 @@ public class PageController {
         return "";
     }
 
-    @GetMapping("/pin")
+    @GetMapping("/page/pin")
     public String pin() {
         return "pin";
     }
 
-    @PostMapping("/pin")
+    @PostMapping("/page/pin")
     public String pinInput(@RequestBody String pin) {
 
         //TODO add appropriate logic
