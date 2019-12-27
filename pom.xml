@@ -16,9 +16,14 @@
 
 	<properties>
 		<java.version>11</java.version>
+		<xs2a-adapter.version>0.0.5</xs2a-adapter.version>
+		<logback-gelf.version>1.1.0</logback-gelf.version>
 	</properties>
 
 	<dependencies>
+
+		<!--	Spring dependencies:	-->
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
@@ -27,6 +32,24 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+
+		<!--	XS2A-Adapter dependencies:	-->
+
+		<dependency>
+			<groupId>de.adorsys.xs2a.adapter</groupId>
+			<artifactId>xs2a-adapter-service-remote</artifactId>
+			<version>${xs2a-adapter.version}</version>
+		</dependency>
+
+		<!-- Logging dependencies: -->
+
+		<dependency>
+			<groupId>de.siegmar</groupId>
+			<artifactId>logback-gelf</artifactId>
+			<version>${logback-gelf.version}</version>
+		</dependency>
+
+		<!--	Test dependencies:	-->
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
