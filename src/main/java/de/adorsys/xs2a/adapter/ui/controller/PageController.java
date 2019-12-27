@@ -11,7 +11,6 @@ import javax.servlet.http.HttpSession;
 
 @Controller
 public class PageController {
-
     private static final String IBAN_SESSION_ATTRIBUTE = "iban";
     private static final String PSU_ID_SESSION_ATTRIBUTE = "psuId";
     private static final String DATE_FROM_SESSION_ATTRIBUTE = "dateFrom";
