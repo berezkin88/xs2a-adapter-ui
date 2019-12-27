@@ -15,7 +15,7 @@
             <label for="auth-method-selected" class="mr-3 h5">Please choose one of available methods</label>
             <select class="custom-select mr-3" id="auth-method-selected">
                 <th:block th:each="method : ${methods}">
-                    <option th:text="${method.getKey()}" th:value="${method.getValue()}"></option>
+                    <option th:value="${method.getKey()}" th:text="${method.getValue()}"></option>
                 </th:block>
             </select>
             <input type="button" class="btn btn-primary" id="choose-method-btn" value="NEXT">

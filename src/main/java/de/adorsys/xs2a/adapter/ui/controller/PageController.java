@@ -93,8 +93,8 @@ public class PageController {
     public String authMethod(Model model) {
 
         // this is a sample data for demonstration purposes only, should be replaced with an appropriate logic in further development
-        Map<String, String> methods = Map.of("SMS-TAN", "901", "chipTAN comfort", "904",
-            "BV AppTAN", "906", "PhotoTAN", "907");
+        Map<String, String> methods = Map.of("901","SMS-TAN","904","chipTAN comfort",
+            "906", "BV AppTAN", "907", "PhotoTAN");
         model.addAttribute("methods", methods);
 
         return "auth-methods";
