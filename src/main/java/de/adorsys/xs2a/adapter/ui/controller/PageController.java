@@ -8,9 +8,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpSession;
+import java.util.logging.Logger;
 
 @Controller
 public class PageController {
+
+    // TODO replace with appropriate Logger
+    private final Logger logger = Logger.getLogger(PageController.class.getName());
+
     private static final String IBAN_SESSION_ATTRIBUTE = "iban";
     private static final String PSU_ID_SESSION_ATTRIBUTE = "psuId";
     private static final String DATE_FROM_SESSION_ATTRIBUTE = "dateFrom";
@@ -43,5 +48,17 @@ public class PageController {
 
         // TODO change to the appropriate view
         return "";
+    }
+
+    @GetMapping("/pin")
+    public String pin() {
+        return "pin";
+    }
+
+    @PostMapping("/pin")
+    public String pinInput(@RequestBody String pin) {
+        logger.info(pin);
+
+        return "pin";
     }
 }
