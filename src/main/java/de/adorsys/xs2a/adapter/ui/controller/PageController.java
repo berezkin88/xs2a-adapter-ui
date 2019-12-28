@@ -51,7 +51,11 @@ public class PageController {
     }
 
     @GetMapping()
-    public String introPage() {
+    public String introPage(HttpSession session) {
+        if (!session.isNew()) {
+            session.invalidate();
+        }
+
         return "intro";
     }
 
@@ -155,5 +159,10 @@ public class PageController {
 
         //TODO add logic
         return "otp";
+    }
+
+    @GetMapping("/page/thank-you")
+    public String thankYou() {
+        return "thank-you";
     }
 }
