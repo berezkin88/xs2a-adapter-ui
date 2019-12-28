@@ -9,11 +9,13 @@ import de.adorsys.xs2a.adapter.ui.service.validator.PsuDataValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpSession;
+import java.util.Map;
 import java.util.List;
 
 @Controller
@@ -85,5 +87,23 @@ public class PageController {
 
         //TODO add appropriate logic
         return "pin";
+    }
+
+    @GetMapping("/page/auth-methods")
+    public String authMethod(Model model) {
+
+        // this is a sample data for demonstration purposes only, should be replaced with an appropriate logic in further development
+        Map<String, String> methods = Map.of("901","SMS-TAN","904","chipTAN comfort",
+            "906", "BV AppTAN", "907", "PhotoTAN");
+        model.addAttribute("methods", methods);
+
+        return "auth-methods";
+    }
+
+    @PostMapping("/page/auth-methods")
+    public String authMethodInput(@RequestBody String authMethodId) {
+
+        //TODO add logic
+        return "auth-methods";
     }
 }
