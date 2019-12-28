@@ -12,6 +12,11 @@ public class PsuDataValidator {
     private static final Pattern IBAN_PATTERN = Pattern.compile(IBAN_REGEX);
 
     public void validatePsuData(PsuData psuData) {
+        if (psuData == null) {
+            // TODO change to some more appropriate exception
+            throw new RuntimeException();
+        }
+
         String iban = psuData.getIban();
 
         if (iban == null || iban.trim().isEmpty() || !IBAN_PATTERN.matcher(iban).find()) {

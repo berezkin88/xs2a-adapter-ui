@@ -1,6 +1,7 @@
 package de.adorsys.xs2a.adapter.ui.service;
 
 import de.adorsys.xs2a.adapter.model.ConsentsResponse201TO;
+import de.adorsys.xs2a.adapter.model.StartScaprocessResponseTO;
 import de.adorsys.xs2a.adapter.remote.api.AccountInformationClient;
 import de.adorsys.xs2a.adapter.ui.service.builder.RequestBuilder;
 import feign.FeignException;
@@ -38,6 +39,27 @@ public class AccountInformationService {
         }
 
         LOGGER.info("{}: create consent response status - {}", sessionId, response.getStatusCodeValue());
+
+        return response.getBody();
+    }
+
+    public StartScaprocessResponseTO startAuthorisation(String consentId, String psuId, String aspspId, String sessionId) {
+        LOGGER.info("{}: start authorisation", sessionId);
+
+        ResponseEntity<StartScaprocessResponseTO> response;
+        try {
+            response = accountInformationClient.startConsentAuthorisation(
+                    consentId,
+                    requestBuilder.startAuthorisationHeaders(psuId, aspspId, sessionId),
+                    requestBuilder.startAuthorisationBody()
+            );
+        } catch (FeignException e) {
+            LOGGER.error("{}: start authorisation response status - {}", sessionId, e.status());
+            // TODO change to some more appropriate exception
+            throw new RuntimeException();
+        }
+
+        LOGGER.info("{}: start authorisation response status - {}", sessionId, response.getStatusCodeValue());
 
         return response.getBody();
     }

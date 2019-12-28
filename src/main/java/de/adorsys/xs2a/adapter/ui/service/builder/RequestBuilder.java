@@ -1,5 +1,7 @@
 package de.adorsys.xs2a.adapter.ui.service.builder;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.adorsys.xs2a.adapter.model.ConsentsTO;
 import de.adorsys.xs2a.adapter.service.RequestHeaders;
 import org.springframework.stereotype.Component;
@@ -36,6 +38,23 @@ public class RequestBuilder {
         headers.put(RequestHeaders.X_REQUEST_ID, UUID.randomUUID().toString());
         headers.put(RequestHeaders.PSU_IP_ADDRESS, DEFAULT_PSU_IP_ADDRESS);
         headers.put(RequestHeaders.TPP_REDIRECT_URI, DEFAULT_TPP_REDIRECT_URI);
+        headers.put(RequestHeaders.CORRELATION_ID, sessionId);
+
+        return headers;
+    }
+
+    public ObjectNode startAuthorisationBody() {
+        return new ObjectNode(JsonNodeFactory.instance);
+    }
+
+    public Map<String, String> startAuthorisationHeaders(String psuId, String aspspId, String sessionId) {
+        Map<String, String> headers = new HashMap<>();
+
+        headers.put(RequestHeaders.PSU_ID, psuId);
+        headers.put(RequestHeaders.PSU_ID_TYPE, DEFAULT_PSU_ID_TYPE);
+        headers.put(RequestHeaders.X_GTW_ASPSP_ID, aspspId);
+        headers.put(RequestHeaders.CONTENT_TYPE, APPLICATION_JSON);
+        headers.put(RequestHeaders.X_REQUEST_ID, UUID.randomUUID().toString());
         headers.put(RequestHeaders.CORRELATION_ID, sessionId);
 
         return headers;
