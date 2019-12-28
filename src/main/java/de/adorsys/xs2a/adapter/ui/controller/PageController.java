@@ -106,4 +106,16 @@ public class PageController {
         //TODO add logic
         return "auth-methods";
     }
+
+    @GetMapping("/page/otp")
+    public String otp() {
+        return "otp";
+    }
+
+    @PostMapping("/page/otp")
+    public String otpInput(@RequestBody String otp) {
+
+        //TODO add logic
+        return "otp";
+    }
 }
