@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
 
@@ -32,13 +33,14 @@ public class AccountInformationService {
         this.objectMapper = objectMapper;
     }
 
-    public ConsentsResponse201TO createConsent(String iban, String psuId, String aspspId, String sessionId) {
+    public ConsentsResponse201TO createConsent(String iban, String psuId, String aspspId, String sessionId,
+                                               UriComponentsBuilder uriComponentsBuilder) {
         LOGGER.info("{}: create consent", sessionId);
 
         ResponseEntity<ConsentsResponse201TO> response;
         try {
             response = accountInformationClient.createConsent(
-                    requestBuilder.createConsentHeaders(psuId, aspspId, sessionId),
+                    requestBuilder.createConsentHeaders(psuId, aspspId, sessionId, uriComponentsBuilder),
                     requestBuilder.createConsentBody(iban)
             );
         } catch (FeignException e) {
