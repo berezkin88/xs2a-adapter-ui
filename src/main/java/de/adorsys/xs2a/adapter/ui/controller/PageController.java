@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 public class PageController {
@@ -100,7 +99,7 @@ public class PageController {
     }
 
     @PostMapping("/page/pin")
-    public String pinInput(@RequestBody String pin, HttpSession session) {
+    public String pinInput(@RequestBody String pin, HttpSession session, Model model) {
         if (pin == null || pin.trim().isEmpty()) {
             // TODO change to some more appropriate exception
             throw new RuntimeException();
@@ -116,19 +115,24 @@ public class PageController {
         String authorisationId = (String) session.getAttribute(AUTHORISATION_ID_SESSION_ATTRIBUTE);
 
         ScaStatusTO scaStatus;
+        List<AuthenticationObjectTO> scaMethods;
         if (authorisationId == null) {
             StartScaprocessResponseTO response
                     = accountInformationService.startAuthorisationWithPsuAuthentication(consentId, psuId, pin, aspspId, session.getId(), encrypted);
             scaStatus = response.getScaStatus();
+            scaMethods = response.getScaMethods();
 
             session.setAttribute(AUTHORISATION_ID_SESSION_ATTRIBUTE, response.getAuthorisationId());
         } else {
             UpdatePsuAuthenticationResponseTO response
                     = accountInformationService.updateConsentsPsuDataPsuPasswordStage(consentId, authorisationId, psuId, pin, aspspId, session.getId(), encrypted);
             scaStatus = response.getScaStatus();
+            scaMethods = response.getScaMethods();
         }
 
         if (scaStatus == ScaStatusTO.PSUAUTHENTICATED) {
+            model.addAttribute("methods", scaMethods);
+            model.addAttribute("method", new SelectPsuAuthenticationMethodTO());
             return "auth-methods";
         }
 
@@ -163,22 +167,14 @@ public class PageController {
         return "pin";
     }
 
-    @GetMapping("/page/auth-methods")
-    public String authMethod(Model model) {
-
-        // this is a sample data for demonstration purposes only, should be replaced with an appropriate logic in further development
-        Map<String, String> methods = Map.of("901", "SMS-TAN", "904", "chipTAN comfort",
-                "906", "BV AppTAN", "907", "PhotoTAN");
-        model.addAttribute("methods", methods);
-
-        return "auth-methods";
-    }
-
     @PostMapping("/page/auth-methods")
-    public String authMethodInput(@RequestBody String authMethodId) {
-
-        //TODO add logic
-        return "auth-methods";
+    public String authMethodInput(SelectPsuAuthenticationMethodTO selectPsuAuthenticationMethod, HttpSession session) {
+        String aspspId = (String) session.getAttribute(ASPSP_ID_SESSION_ATTRIBUTE);
+        String consentId = (String) session.getAttribute(CONSENT_ID_SESSION_ATTRIBUTE);
+        String authorisationId = (String) session.getAttribute(AUTHORISATION_ID_SESSION_ATTRIBUTE);
+        accountInformationService.updateConsentsPsuData(session.getId(), aspspId, consentId, authorisationId,
+                selectPsuAuthenticationMethod);
+        return "redirect:/page/otp";
     }
 
     @GetMapping("/page/otp")
