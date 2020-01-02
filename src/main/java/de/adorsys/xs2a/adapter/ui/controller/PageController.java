@@ -87,6 +87,9 @@ public class PageController {
 
         if (linksService.isEmbeddedApproach(consent.getLinks())) {
             return proceedEmbeddedStartAuthorisation(consent, session, psuData.getPsuId(), aspspId);
+        } else if (linksService.isRedirectApproach(consent.getLinks())) {
+            model.addAttribute("redirectUri", linksService.redirectUri(consent.getLinks()));
+            return "redirect";
         }
 
         // TODO add page resolver for REDIRECT and OAUTH approaches
