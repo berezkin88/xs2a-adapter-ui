@@ -192,6 +192,13 @@ public class PageController {
         return "otp";
     }
 
+    @GetMapping("/redirect")
+    public String redirect(HttpSession httpSession) {
+        LOGGER.info("{}: redirect", httpSession.getId());
+        // TODO async get transactions
+        return "thank-you";
+    }
+
     @GetMapping("/page/thank-you")
     public String thankYou() {
         return "thank-you";

@@ -7,6 +7,7 @@ import de.adorsys.xs2a.adapter.model.ConsentsTO;
 import de.adorsys.xs2a.adapter.service.RequestHeaders;
 import de.adorsys.xs2a.adapter.service.model.PsuData;
 import de.adorsys.xs2a.adapter.service.model.UpdatePsuAuthentication;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -18,15 +19,16 @@ public class RequestBuilder {
     private static final String APPLICATION_JSON = "application/json";
     private static final String DEFAULT_PSU_ID_TYPE = "";
     private static final String DEFAULT_PSU_IP_ADDRESS = "0.0.0.0";
-    // TODO change to the appropriate URI as soon as it is ready
-    private static final String DEFAULT_TPP_REDIRECT_URI = "https://example.com";
 
     private final ModelBuilder modelBuilder;
     private final ObjectMapper objectMapper;
+    private final String tppRedirectUri;
 
-    public RequestBuilder(ModelBuilder modelBuilder, ObjectMapper objectMapper) {
+    public RequestBuilder(ModelBuilder modelBuilder, ObjectMapper objectMapper,
+                          @Value("tpp-redirect-uri") String tppRedirectUri) {
         this.modelBuilder = modelBuilder;
         this.objectMapper = objectMapper;
+        this.tppRedirectUri = tppRedirectUri;
     }
 
     public ConsentsTO createConsentBody(String iban) {
@@ -42,7 +44,7 @@ public class RequestBuilder {
         headers.put(RequestHeaders.CONTENT_TYPE, APPLICATION_JSON);
         headers.put(RequestHeaders.X_REQUEST_ID, UUID.randomUUID().toString());
         headers.put(RequestHeaders.PSU_IP_ADDRESS, DEFAULT_PSU_IP_ADDRESS);
-        headers.put(RequestHeaders.TPP_REDIRECT_URI, DEFAULT_TPP_REDIRECT_URI);
+        headers.put(RequestHeaders.TPP_REDIRECT_URI, tppRedirectUri);
         headers.put(RequestHeaders.CORRELATION_ID, sessionId);
 
         return headers;
