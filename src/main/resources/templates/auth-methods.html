@@ -10,15 +10,15 @@
 <body>
 
 <div class="container pt-5 pb-5 d-md-flex justify-content-center">
-    <form class="form-inline">
+    <form class="form-inline" method="post" th:action="@{/page/auth-methods}" th:object="${method}">
         <div class="input-group">
             <label for="auth-method-selected" class="mr-3 h5">Please choose one of available methods</label>
-            <select class="custom-select mr-3" id="auth-method-selected">
+            <select class="custom-select mr-3" id="auth-method-selected" th:field="*{authenticationMethodId}">
                 <th:block th:each="method : ${methods}">
-                    <option th:value="${method.getKey()}" th:text="${method.getValue()}"></option>
+                    <option th:value="${method.getAuthenticationMethodId()}" th:text="${method.getName()}"></option>
                 </th:block>
             </select>
-            <input type="button" class="btn btn-primary" id="choose-method-btn" value="NEXT">
+            <input type="submit" class="btn btn-primary" id="choose-method-btn" value="NEXT">
         </div>
     </form>
 </div>
@@ -30,17 +30,5 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
         integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
         crossorigin="anonymous"></script>
-
-<script>
-    $(document).ready(() => {
-        $("#choose-method-btn").click( () => {
-            $.post( "/page/auth-methods", { "authenticationMethodId": $("#auth-method-selected").val() }, () => {
-                console.log("success");
-            }).fail( () => {
-                window.location.replace("/page/thank-you");
-            })
-        })
-    })
-</script>
 </body>
 </html>

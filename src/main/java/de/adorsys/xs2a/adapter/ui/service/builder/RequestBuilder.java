@@ -91,4 +91,15 @@ public class RequestBuilder {
     public Map<String, String> updateConsentsPsuDataPsuPasswordStageHeaders(String psuId, String aspspId, String sessionId) {
         return startAuthorisationWithPsuAuthenticationHeaders(psuId, aspspId, sessionId);
     }
+
+    public Map<String, String> selectPsuAuthenticationMethodHeaders(String sessionId, String aspspId) {
+        Map<String, String> headers = new HashMap<>();
+
+        headers.put(RequestHeaders.CONTENT_TYPE, APPLICATION_JSON);
+        headers.put(RequestHeaders.X_GTW_ASPSP_ID, aspspId);
+        headers.put(RequestHeaders.X_REQUEST_ID, UUID.randomUUID().toString());
+        headers.put(RequestHeaders.CORRELATION_ID, sessionId);
+
+        return headers;
+    }
 }
