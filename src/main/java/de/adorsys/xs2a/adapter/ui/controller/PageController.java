@@ -1,8 +1,6 @@
 package de.adorsys.xs2a.adapter.ui.controller;
 
-import de.adorsys.xs2a.adapter.model.AspspTO;
-import de.adorsys.xs2a.adapter.model.ConsentsResponse201TO;
-import de.adorsys.xs2a.adapter.model.StartScaprocessResponseTO;
+import de.adorsys.xs2a.adapter.model.*;
 import de.adorsys.xs2a.adapter.ui.model.PsuData;
 import de.adorsys.xs2a.adapter.ui.service.AccountInformationService;
 import de.adorsys.xs2a.adapter.ui.service.AspspSearchService;
@@ -18,8 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpSession;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class PageController {
@@ -102,10 +100,44 @@ public class PageController {
     }
 
     @PostMapping("/page/pin")
-    public String pinInput(@RequestBody String pin) {
+    public String pinInput(@RequestBody String pin, HttpSession session) {
+        if (pin == null || pin.trim().isEmpty()) {
+            // TODO change to some more appropriate exception
+            throw new RuntimeException();
+        }
 
-        //TODO add appropriate logic
-        return "pin";
+        // pin format from frontend is 'pin=pinValue'
+        pin = pin.split("=")[1];
+
+        String consentId = (String) session.getAttribute(CONSENT_ID_SESSION_ATTRIBUTE);
+        String psuId = (String) session.getAttribute(PSU_ID_SESSION_ATTRIBUTE);
+        String aspspId = (String) session.getAttribute(ASPSP_ID_SESSION_ATTRIBUTE);
+        boolean encrypted = Boolean.parseBoolean((String) session.getAttribute(ENCRYPTED_AUTHORISATION_SESSION_ATTRIBUTE));
+        String authorisationId = (String) session.getAttribute(AUTHORISATION_ID_SESSION_ATTRIBUTE);
+
+        ScaStatusTO scaStatus;
+        if (authorisationId == null) {
+            StartScaprocessResponseTO response
+                    = accountInformationService.startAuthorisationWithPsuAuthentication(consentId, psuId, pin, aspspId, session.getId(), encrypted);
+            scaStatus = response.getScaStatus();
+
+            session.setAttribute(AUTHORISATION_ID_SESSION_ATTRIBUTE, response.getAuthorisationId());
+        } else {
+            UpdatePsuAuthenticationResponseTO response
+                    = accountInformationService.updateConsentsPsuDataPsuPasswordStage(consentId, authorisationId, psuId, pin, aspspId, session.getId(), encrypted);
+            scaStatus = response.getScaStatus();
+        }
+
+        if (scaStatus == ScaStatusTO.PSUAUTHENTICATED) {
+            return "auth-methods";
+        }
+
+        if (scaStatus == ScaStatusTO.SCAMETHODSELECTED) {
+            return "otp";
+        }
+
+        // TODO change to some more appropriate exception
+        throw new RuntimeException("Unexpected SCA status");
     }
 
     private String proceedEmbeddedStartAuthorisation(ConsentsResponse201TO consent, HttpSession session, String psuId, String aspspId) {
@@ -135,8 +167,8 @@ public class PageController {
     public String authMethod(Model model) {
 
         // this is a sample data for demonstration purposes only, should be replaced with an appropriate logic in further development
-        Map<String, String> methods = Map.of("901","SMS-TAN","904","chipTAN comfort",
-            "906", "BV AppTAN", "907", "PhotoTAN");
+        Map<String, String> methods = Map.of("901", "SMS-TAN", "904", "chipTAN comfort",
+                "906", "BV AppTAN", "907", "PhotoTAN");
         model.addAttribute("methods", methods);
 
         return "auth-methods";

@@ -1,9 +1,12 @@
 package de.adorsys.xs2a.adapter.ui.service.builder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.adorsys.xs2a.adapter.model.ConsentsTO;
 import de.adorsys.xs2a.adapter.service.RequestHeaders;
+import de.adorsys.xs2a.adapter.service.model.PsuData;
+import de.adorsys.xs2a.adapter.service.model.UpdatePsuAuthentication;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -19,9 +22,11 @@ public class RequestBuilder {
     private static final String DEFAULT_TPP_REDIRECT_URI = "https://example.com";
 
     private final ModelBuilder modelBuilder;
+    private final ObjectMapper objectMapper;
 
-    public RequestBuilder(ModelBuilder modelBuilder) {
+    public RequestBuilder(ModelBuilder modelBuilder, ObjectMapper objectMapper) {
         this.modelBuilder = modelBuilder;
+        this.objectMapper = objectMapper;
     }
 
     public ConsentsTO createConsentBody(String iban) {
@@ -58,5 +63,32 @@ public class RequestBuilder {
         headers.put(RequestHeaders.CORRELATION_ID, sessionId);
 
         return headers;
+    }
+
+    public ObjectNode startAuthorisationWithPsuAuthenticationBody(String pin, boolean encrypted) {
+        PsuData psuData = new PsuData();
+
+        if (encrypted) {
+            psuData.setEncryptedPassword(pin);
+        } else {
+            psuData.setPassword(pin);
+        }
+
+        UpdatePsuAuthentication updatePsuAuthentication = new UpdatePsuAuthentication();
+        updatePsuAuthentication.setPsuData(psuData);
+
+        return objectMapper.valueToTree(updatePsuAuthentication);
+    }
+
+    public Map<String, String> startAuthorisationWithPsuAuthenticationHeaders(String psuId, String aspspId, String sessionId) {
+        return startAuthorisationHeaders(psuId, aspspId, sessionId);
+    }
+
+    public ObjectNode updateConsentsPsuDataPsuPasswordStageBody(String pin, boolean encrypted) {
+        return startAuthorisationWithPsuAuthenticationBody(pin, encrypted);
+    }
+
+    public Map<String, String> updateConsentsPsuDataPsuPasswordStageHeaders(String psuId, String aspspId, String sessionId) {
+        return startAuthorisationWithPsuAuthenticationHeaders(psuId, aspspId, sessionId);
     }
 }
