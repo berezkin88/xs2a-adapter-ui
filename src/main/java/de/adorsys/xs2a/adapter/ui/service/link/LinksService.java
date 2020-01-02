@@ -3,6 +3,7 @@ package de.adorsys.xs2a.adapter.ui.service.link;
 import de.adorsys.xs2a.adapter.model.HrefTypeTO;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -16,9 +17,16 @@ public class LinksService {
     public boolean isEmbeddedApproach(Map<String, HrefTypeTO> links) {
         return !isRedirectApproach(links) && !isOauthApproach(links);
     }
-
     public boolean isRedirectApproach(Map<String, HrefTypeTO> links) {
         return links.containsKey("scaRedirect");
+    }
+
+    public URI redirectUri(Map<String, HrefTypeTO> links) {
+        HrefTypeTO scaRedirect = links.get("scaRedirect");
+        if (scaRedirect == null) {
+            throw new IllegalArgumentException("scaRedirect link is missing");
+        }
+        return URI.create(scaRedirect.getHref());
     }
 
     public boolean isOauthApproach(Map<String, HrefTypeTO> links) {
