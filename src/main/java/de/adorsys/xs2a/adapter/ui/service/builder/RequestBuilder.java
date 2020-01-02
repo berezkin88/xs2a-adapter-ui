@@ -7,12 +7,15 @@ import de.adorsys.xs2a.adapter.model.ConsentsTO;
 import de.adorsys.xs2a.adapter.service.RequestHeaders;
 import de.adorsys.xs2a.adapter.service.model.PsuData;
 import de.adorsys.xs2a.adapter.service.model.UpdatePsuAuthentication;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import static de.adorsys.xs2a.adapter.ui.controller.RedirectController.NOK_REDIRECT_PATH;
+import static de.adorsys.xs2a.adapter.ui.controller.RedirectController.REDIRECT_PATH;
 
 @Component
 public class RequestBuilder {
@@ -22,20 +25,18 @@ public class RequestBuilder {
 
     private final ModelBuilder modelBuilder;
     private final ObjectMapper objectMapper;
-    private final String tppRedirectUri;
 
-    public RequestBuilder(ModelBuilder modelBuilder, ObjectMapper objectMapper,
-                          @Value("tpp-redirect-uri") String tppRedirectUri) {
+    public RequestBuilder(ModelBuilder modelBuilder, ObjectMapper objectMapper) {
         this.modelBuilder = modelBuilder;
         this.objectMapper = objectMapper;
-        this.tppRedirectUri = tppRedirectUri;
     }
 
     public ConsentsTO createConsentBody(String iban) {
         return modelBuilder.buildConsents(iban);
     }
 
-    public Map<String, String> createConsentHeaders(String psuId, String aspspId, String sessionId) {
+    public Map<String, String> createConsentHeaders(String psuId, String aspspId, String sessionId,
+                                                    UriComponentsBuilder uriComponentsBuilder) {
         Map<String, String> headers = new HashMap<>();
 
         headers.put(RequestHeaders.PSU_ID, psuId);
@@ -44,10 +45,19 @@ public class RequestBuilder {
         headers.put(RequestHeaders.CONTENT_TYPE, APPLICATION_JSON);
         headers.put(RequestHeaders.X_REQUEST_ID, UUID.randomUUID().toString());
         headers.put(RequestHeaders.PSU_IP_ADDRESS, DEFAULT_PSU_IP_ADDRESS);
-        headers.put(RequestHeaders.TPP_REDIRECT_URI, tppRedirectUri);
+        headers.put(RequestHeaders.TPP_REDIRECT_URI, tppRedirectUri(uriComponentsBuilder));
+        headers.put(RequestHeaders.TPP_NOK_REDIRECT_URI, tppNokRedirectUri(uriComponentsBuilder));
         headers.put(RequestHeaders.CORRELATION_ID, sessionId);
 
         return headers;
+    }
+
+    private String tppRedirectUri(UriComponentsBuilder uriComponentsBuilder) {
+        return uriComponentsBuilder.cloneBuilder().path(REDIRECT_PATH).toUriString();
+    }
+
+    private String tppNokRedirectUri(UriComponentsBuilder uriComponentsBuilder) {
+        return uriComponentsBuilder.cloneBuilder().path(NOK_REDIRECT_PATH).toUriString();
     }
 
     public ObjectNode startAuthorisationBody() {

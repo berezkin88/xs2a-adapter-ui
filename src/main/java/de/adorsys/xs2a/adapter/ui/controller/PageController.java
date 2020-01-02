@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -63,7 +64,8 @@ public class PageController {
     }
 
     @PostMapping("/page/psu-data")
-    public String psuDataInput(Model model, @ModelAttribute PsuData psuData, HttpSession session) {
+    public String psuDataInput(Model model, @ModelAttribute PsuData psuData, HttpSession session,
+                               UriComponentsBuilder uriComponentsBuilder) {
         model.addAttribute(PSU_DATA_MODEL_ATTRIBUTE, null);
         psuDataValidator.validatePsuData(psuData);
 
@@ -82,7 +84,8 @@ public class PageController {
         session.setAttribute(ASPSP_ID_SESSION_ATTRIBUTE, aspspId);
 
         // create consent
-        ConsentsResponse201TO consent = accountInformationService.createConsent(psuData.getIban(), psuData.getPsuId(), aspspId, sessionId);
+        ConsentsResponse201TO consent = accountInformationService.createConsent(psuData.getIban(), psuData.getPsuId(),
+                aspspId, sessionId, uriComponentsBuilder);
         session.setAttribute(CONSENT_ID_SESSION_ATTRIBUTE, consent.getConsentId());
 
         if (linksService.isEmbeddedApproach(consent.getLinks())) {
@@ -190,13 +193,6 @@ public class PageController {
 
         //TODO add logic
         return "otp";
-    }
-
-    @GetMapping("/redirect")
-    public String redirect(HttpSession httpSession) {
-        LOGGER.info("{}: redirect", httpSession.getId());
-        // TODO async get transactions
-        return "thank-you";
     }
 
     @GetMapping("/page/thank-you")
