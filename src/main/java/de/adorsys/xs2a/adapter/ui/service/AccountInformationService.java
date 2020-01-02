@@ -1,7 +1,9 @@
 package de.adorsys.xs2a.adapter.ui.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.adorsys.xs2a.adapter.model.ConsentsResponse201TO;
+import de.adorsys.xs2a.adapter.model.SelectPsuAuthenticationMethodTO;
 import de.adorsys.xs2a.adapter.model.StartScaprocessResponseTO;
 import de.adorsys.xs2a.adapter.model.UpdatePsuAuthenticationResponseTO;
 import de.adorsys.xs2a.adapter.remote.api.AccountInformationClient;
@@ -11,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Service
 public class AccountInformationService {
@@ -114,5 +118,27 @@ public class AccountInformationService {
         LOGGER.info("{}: update consent PSU data (PSU password stage) response status - {}", sessionId, response.getStatusCodeValue());
 
         return objectMapper.convertValue(response.getBody(), UpdatePsuAuthenticationResponseTO.class);
+    }
+
+    public void updateConsentsPsuData(String sessionId,
+                                      String aspspid,
+                                      String consentId,
+                                      String authorisationId,
+                                      SelectPsuAuthenticationMethodTO selectPsuAuthenticationMethodTO) {
+        LOGGER.info("{}: update consent PSU data (selectPsuAuthenticationMethod)", sessionId);
+
+        Map<String, String> headers = requestBuilder.selectPsuAuthenticationMethodHeaders(sessionId, aspspid);
+        ObjectNode body = objectMapper.convertValue(selectPsuAuthenticationMethodTO, ObjectNode.class);
+        ResponseEntity<Object> response;
+        try {
+            response = accountInformationClient.updateConsentsPsuData(consentId, authorisationId, headers, body);
+        } catch (FeignException e) {
+            LOGGER.error("{}: update consent PSU data (selectPsuAuthenticationMethod) response status - {}",
+                    sessionId,
+                    e.status());
+            throw new RuntimeException(e);
+        }
+        LOGGER.info("{}: update consent PSU data (selectPsuAuthenticationMethod) response status - {}", sessionId,
+                response.getStatusCodeValue());
     }
 }
