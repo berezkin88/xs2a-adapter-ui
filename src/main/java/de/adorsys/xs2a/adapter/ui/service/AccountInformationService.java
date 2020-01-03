@@ -2,11 +2,9 @@ package de.adorsys.xs2a.adapter.ui.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import de.adorsys.xs2a.adapter.model.ConsentsResponse201TO;
-import de.adorsys.xs2a.adapter.model.SelectPsuAuthenticationMethodTO;
-import de.adorsys.xs2a.adapter.model.StartScaprocessResponseTO;
-import de.adorsys.xs2a.adapter.model.UpdatePsuAuthenticationResponseTO;
+import de.adorsys.xs2a.adapter.model.*;
 import de.adorsys.xs2a.adapter.remote.api.AccountInformationClient;
+import de.adorsys.xs2a.adapter.service.model.TransactionsReport;
 import de.adorsys.xs2a.adapter.ui.service.builder.RequestBuilder;
 import feign.FeignException;
 import org.slf4j.Logger;
@@ -15,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 @Service
@@ -142,5 +142,82 @@ public class AccountInformationService {
         }
         LOGGER.info("{}: update consent PSU data (selectPsuAuthenticationMethod) response status - {}", sessionId,
                 response.getStatusCodeValue());
+    }
+
+    public void updateConsentsPsuDataPsuOtpStage(String consentId, String authorisationId, String psuId,
+                                                 String otp, String aspspId, String sessionId) {
+        LOGGER.info("{}: update consent PSU data (PSU otp stage)", sessionId);
+
+        ResponseEntity<Object> response;
+        try {
+            response = accountInformationClient.updateConsentsPsuData(consentId, authorisationId,
+                requestBuilder.updateConsentsPsuDataPsuPasswordStageHeaders(psuId, aspspId, sessionId),
+                requestBuilder.updateConsentsPsuDataPsuOtpStageBody(otp));
+        } catch (FeignException e) {
+            LOGGER.error("{}: update consent PSU data (PSU otp stage) response status - {}", sessionId, e.status());
+            // TODO change to some more appropriate exception
+            throw new RuntimeException();
+        }
+
+        LOGGER.info("{}: update consent PSU data (PSU otp stage) response status - {}", sessionId, response.getStatusCodeValue());
+    }
+
+    public ScaStatusResponseTO getConsentScaStatus(String consentId, String authorisationId, String psuId,
+                                                   String aspspId, String sessionId) {
+        LOGGER.info("{}: get consent status", sessionId);
+
+        ResponseEntity<ScaStatusResponseTO> response;
+        try {
+            response = accountInformationClient.getConsentScaStatus(consentId, authorisationId,
+                requestBuilder.updateConsentsPsuDataPsuPasswordStageHeaders(psuId, aspspId, sessionId));
+        } catch (FeignException e) {
+            LOGGER.error("{}: get consent status response status - {}", sessionId, e.status());
+            // TODO change to some more appropriate exception
+            throw new RuntimeException();
+        }
+
+        LOGGER.info("{}: consent status response status - {}", sessionId, response.getStatusCodeValue());
+        return response.getBody();
+    }
+
+
+    public AccountListTO getAccountList(String consentId, String aspspId, String sessionId) {
+        LOGGER.info("{}: get account list", sessionId);
+
+        ResponseEntity<AccountListTO> response;
+        try {
+            response = accountInformationClient.getAccountList(false,
+                requestBuilder.getAccountListHeaders(consentId, aspspId, sessionId));
+        } catch (FeignException e) {
+            LOGGER.error("{}: get account list response status - {}", sessionId, e.status());
+            // TODO change to some more appropriate exception
+            throw new RuntimeException();
+        }
+
+        LOGGER.info("{}: get account list response status - {}", sessionId, response.getStatusCodeValue());
+        return response.getBody();
+    }
+
+    public void getTransactionList(String accountId, LocalDate dateFrom, LocalDate dateTo,
+                                   String consentId, String aspspId, String sessionId) {
+        LOGGER.info("{}: get transaction list", sessionId);
+
+        ResponseEntity<TransactionsReport> response;
+        try {
+            response = accountInformationClient.getTransactionList(accountId,
+                dateFrom,
+                dateTo,
+                null,
+                BookingStatusTO.BOOKED,
+                null,
+                true,
+                requestBuilder.getTransactionsListHeaders(consentId, aspspId, sessionId));
+        } catch (FeignException e) {
+            LOGGER.error("{}: get transaction list response status - {}", sessionId, e.status());
+            // TODO change to some more appropriate exception
+            throw new RuntimeException();
+        }
+
+        LOGGER.info("{}: get transaction list response status - {}", sessionId, response.getStatusCodeValue());
     }
 }
