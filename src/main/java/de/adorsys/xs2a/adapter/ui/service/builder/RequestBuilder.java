@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.adorsys.xs2a.adapter.model.ConsentsTO;
 import de.adorsys.xs2a.adapter.service.RequestHeaders;
 import de.adorsys.xs2a.adapter.service.model.PsuData;
+import de.adorsys.xs2a.adapter.service.model.TransactionAuthorisation;
 import de.adorsys.xs2a.adapter.service.model.UpdatePsuAuthentication;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -113,5 +114,35 @@ public class RequestBuilder {
         headers.put(RequestHeaders.CORRELATION_ID, sessionId);
 
         return headers;
+    }
+
+    public ObjectNode updateConsentsPsuDataPsuOtpStageBody(String otp) {
+        TransactionAuthorisation transactionAuthorisation = new TransactionAuthorisation();
+        transactionAuthorisation.setScaAuthenticationData(otp);
+
+        return objectMapper.valueToTree(transactionAuthorisation);
+    }
+
+    public Map<String, String> getAccountListHeaders(String consentId, String aspspId, String sessionId) {
+        Map<String, String> headers = new HashMap<>();
+
+        headers.put(RequestHeaders.ACCEPT, APPLICATION_JSON);
+        headers.putAll(getTransactionsListHeaders(consentId, aspspId, sessionId));
+        return headers;
+    }
+
+    public Map<String, String> getTransactionsListHeaders(String consentId, String aspspId, String sessionId) {
+        Map<String, String> headers = new HashMap<>();
+
+        headers.put(RequestHeaders.X_REQUEST_ID, UUID.randomUUID().toString());
+        headers.put(RequestHeaders.CONSENT_ID, consentId);
+        headers.put(RequestHeaders.X_GTW_ASPSP_ID, aspspId);
+        headers.put(RequestHeaders.CORRELATION_ID, sessionId);
+
+        return headers;
+    }
+
+    public Map<String, String> updateConsentsPsuDataPsuOtpStageHeaders(String psuId, String aspspId, String sessionId) {
+        return updateConsentsPsuDataPsuPasswordStageHeaders(psuId, aspspId, sessionId);
     }
 }
