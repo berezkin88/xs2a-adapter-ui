@@ -10,11 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+import java.time.LocalDate;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -189,10 +187,24 @@ public class PageController {
     }
 
     @PostMapping("/page/otp")
-    public String otpInput(@RequestBody String otp) {
+    public String otpInput(@RequestParam String otp, HttpSession session) {
+        String consentId = (String) session.getAttribute(CONSENT_ID_SESSION_ATTRIBUTE);
+        String authorisationId = (String) session.getAttribute(AUTHORISATION_ID_SESSION_ATTRIBUTE);
+        String psuId = (String) session.getAttribute(PSU_ID_SESSION_ATTRIBUTE);
+        String aspspId = (String) session.getAttribute(ASPSP_ID_SESSION_ATTRIBUTE);
+        LocalDate dateFrom = (LocalDate) session.getAttribute(DATE_FROM_SESSION_ATTRIBUTE);
+        LocalDate dateTo = (LocalDate) session.getAttribute(DATE_TO_SESSION_ATTRIBUTE);
+        String sessionId = session.getId();
 
-        //TODO add logic
-        return "otp";
+        accountInformationService.updateConsentsPsuDataPsuOtpStage(consentId, authorisationId, psuId, otp, aspspId, sessionId);
+
+        AccountListTO accounts = accountInformationService.getAccountList(consentId, aspspId, sessionId);
+
+        String firstAccountId = accounts.getAccounts().get(0).getResourceId();
+
+        accountInformationService.getTransactionList(firstAccountId, dateFrom, dateTo, consentId, aspspId, sessionId);
+
+        return "redirect:/page/thank-you";
     }
 
     @GetMapping("/page/thank-you")

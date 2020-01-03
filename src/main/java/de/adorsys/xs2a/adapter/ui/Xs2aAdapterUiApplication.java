@@ -1,13 +1,13 @@
 package de.adorsys.xs2a.adapter.ui;
 
+import de.adorsys.xs2a.adapter.ui.configuration.FeignConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-@EnableFeignClients(basePackages = {"de.adorsys.xs2a.adapter.remote.api"})
+@EnableFeignClients(basePackages = {"de.adorsys.xs2a.adapter.remote.api"}, defaultConfiguration = FeignConfiguration.class)
 @SpringBootApplication
 public class Xs2aAdapterUiApplication implements WebMvcConfigurer {
 
