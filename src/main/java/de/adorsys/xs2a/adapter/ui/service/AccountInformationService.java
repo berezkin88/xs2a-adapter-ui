@@ -10,6 +10,7 @@ import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -199,5 +200,16 @@ public class AccountInformationService {
         }
 
         LOGGER.info("{}: get transaction list response status - {}", sessionId, response.getStatusCodeValue());
+    }
+
+    @Async
+    public void getTransactionsAsync(String consentId, String aspspId, String sessionId, LocalDate dateFrom, LocalDate dateTo) {
+        LOGGER.info("{}: get transactional data asynchronously", sessionId);
+
+        AccountListTO accounts = getAccountList(consentId, aspspId, sessionId);
+
+        String firstAccountId = accounts.getAccounts().get(0).getResourceId();
+
+        getTransactionList(firstAccountId, dateFrom, dateTo, consentId, aspspId, sessionId);
     }
 }
