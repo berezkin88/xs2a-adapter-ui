@@ -200,7 +200,8 @@ public class PageController {
 
         AccountListTO accounts = accountInformationService.getAccountList(consentId, aspspId, sessionId);
 
-        if (accounts == null || accounts.getAccounts().isEmpty()) {
+        if (accounts == null || accounts.getAccounts() == null || accounts.getAccounts().isEmpty()) {
+            LOGGER.info("{}: no accounts found", sessionId);
             // TODO change to some more appropriate exception
             throw new RuntimeException();
         }
