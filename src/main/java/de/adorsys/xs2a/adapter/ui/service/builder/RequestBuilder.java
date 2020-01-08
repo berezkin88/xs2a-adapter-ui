@@ -127,7 +127,10 @@ public class RequestBuilder {
         Map<String, String> headers = new HashMap<>();
 
         headers.put(RequestHeaders.ACCEPT, APPLICATION_JSON);
-        headers.putAll(getTransactionsListHeaders(consentId, aspspId, sessionId));
+        headers.put(RequestHeaders.X_REQUEST_ID, UUID.randomUUID().toString());
+        headers.put(RequestHeaders.CONSENT_ID, consentId);
+        headers.put(RequestHeaders.X_GTW_ASPSP_ID, aspspId);
+        headers.put(RequestHeaders.CORRELATION_ID, sessionId);
         return headers;
     }
 

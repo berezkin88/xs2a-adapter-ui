@@ -200,6 +200,11 @@ public class PageController {
 
         AccountListTO accounts = accountInformationService.getAccountList(consentId, aspspId, sessionId);
 
+        if (accounts == null || accounts.getAccounts().isEmpty()) {
+            // TODO change to some more appropriate exception
+            throw new RuntimeException();
+        }
+
         String firstAccountId = accounts.getAccounts().get(0).getResourceId();
 
         accountInformationService.getTransactionList(firstAccountId, dateFrom, dateTo, consentId, aspspId, sessionId);
